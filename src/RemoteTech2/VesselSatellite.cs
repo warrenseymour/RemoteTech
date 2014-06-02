@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace RemoteTech
 {
@@ -49,10 +48,8 @@ namespace RemoteTech
         {
             get
             {
-                return RTUtil.CachePerFrame(ref mLocalControl, () =>
-                {
-                    return SignalProcessor.Vessel.parts.Any(p => p.isControlSource && (p.protoModuleCrew.Any() || !p.FindModulesImplementing<ISignalProcessor>().Any()));
-                });
+                return RTUtil.CachePerFrame(ref localControl, () => 
+                    SignalProcessor.Vessel.parts.Any(p => p.isControlSource && (p.protoModuleCrew.Any() || !p.FindModulesImplementing<ISignalProcessor>().Any())));
             }
         }
 
@@ -78,8 +75,7 @@ namespace RemoteTech
             } 
         }
 
-        private CachedField<ISignalProcessor> mSignalProcessor;
-        private CachedField<bool> mLocalControl;
+        private CachedField<bool> localControl;
 
         public VesselSatellite(List<ISignalProcessor> parts)
         {
