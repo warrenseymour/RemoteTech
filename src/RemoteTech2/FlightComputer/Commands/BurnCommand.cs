@@ -17,7 +17,7 @@ namespace RemoteTech
             }
         }
 
-        private bool mAbort;
+        private bool abort;
 
         public override bool Pop(FlightComputer f)
         {
@@ -26,7 +26,7 @@ namespace RemoteTech
 
         public override bool Execute(FlightComputer f, FlightCtrlState fcs)
         {
-            if (mAbort)
+            if (abort)
             {
                 fcs.mainThrottle = 0.0f;
                 return true;
@@ -50,7 +50,7 @@ namespace RemoteTech
             return false;
         }
 
-        public override void Abort() { mAbort = true; }
+        public override void Abort() { abort = true; }
 
         public static BurnCommand Off()
         {

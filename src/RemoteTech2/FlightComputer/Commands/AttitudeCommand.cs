@@ -104,7 +104,7 @@ namespace RemoteTech
             }
         }
 
-        private bool mAbort;
+        private bool abort;
 
         public override bool Pop(FlightComputer f)
         {
@@ -117,10 +117,10 @@ namespace RemoteTech
 
         public override bool Execute(FlightComputer f, FlightCtrlState fcs)
         {
-            if (mAbort)
+            if (abort)
             {
                 Mode = FlightMode.Off;
-                mAbort = false;
+                abort = false;
             }
 
             switch (Mode)
@@ -145,7 +145,7 @@ namespace RemoteTech
 
         public override void Abort()
         {
-            mAbort = true;
+            abort = true;
         }
 
         public static AttitudeCommand Off()
