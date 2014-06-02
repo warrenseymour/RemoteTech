@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Text;
-using UnityEngine;
 
 namespace RemoteTech
 {
@@ -29,8 +27,8 @@ namespace RemoteTech
 
         public DelayedManeuver(ManeuverNode node)
         {
-            Node = new ManeuverNode()
-            {
+            Node = new ManeuverNode
+                {
                 DeltaV = node.DeltaV,
                 patch = node.patch,
                 solver = node.solver,

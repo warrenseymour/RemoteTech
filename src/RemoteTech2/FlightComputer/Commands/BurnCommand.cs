@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace RemoteTech
 {
@@ -57,8 +54,8 @@ namespace RemoteTech
 
         public static BurnCommand Off()
         {
-            return new BurnCommand()
-            {
+            return new BurnCommand
+                {
                 Throttle = Single.NaN,
                 Duration = 0,
                 DeltaV = 0,
@@ -68,8 +65,8 @@ namespace RemoteTech
 
         public static BurnCommand WithDuration(float throttle, double duration)
         {
-            return new BurnCommand()
-            {
+            return new BurnCommand
+                {
                 Throttle = throttle,
                 Duration = duration,
                 DeltaV = 0,
@@ -79,8 +76,8 @@ namespace RemoteTech
 
         public static BurnCommand WithDeltaV(float throttle, double delta)
         {
-            return new BurnCommand()
-            {
+            return new BurnCommand
+                {
                 Throttle = throttle,
                 Duration = 0,
                 DeltaV = delta,

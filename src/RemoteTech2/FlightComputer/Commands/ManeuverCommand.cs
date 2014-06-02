@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace RemoteTech
@@ -21,15 +19,13 @@ namespace RemoteTech
             {
                 if (RemainingTime > 0 || RemainingDelta > 0)
                 {
-                    string flightInfo = "Executing maneuver: " + RemainingDelta.ToString("F2") +
-                                        "m/s" + Environment.NewLine + "Remaining duration: ";
-
-                    flightInfo += EngineActivated ? RTUtil.FormatDuration(RemainingTime) : "-:-";
-
-                    return flightInfo + Environment.NewLine + base.Description;
+                    return string.Format("Executing maneuver: {0}m/s{3}Remaining duration: {1}{3}{2}", 
+                        RemainingDelta.ToString("F2"), 
+                        EngineActivated ? RTUtil.FormatDuration(RemainingTime) : "-:-",
+                        base.Description,
+                        Environment.NewLine);
                 }
-                else
-                    return "Execute planned maneuver" + Environment.NewLine + base.Description;
+                return string.Format("Execute planned maneuver{0}{1}", Environment.NewLine, base.Description);
             }
         }
 
@@ -44,12 +40,15 @@ namespace RemoteTech
             RemainingDelta = Node.GetBurnVector(f.Vessel.orbit).magnitude;
             EngineActivated = true;
 
-            double thrustToMass = FlightCore.GetTotalThrust(f.Vessel) / f.Vessel.GetTotalMass();
-            if (thrustToMass == 0.0) {
+            var thrustToMass = FlightCore.GetTotalThrust(f.Vessel) / f.Vessel.GetTotalMass();
+            if (thrustToMass < 0.0)
+            {
+                RemainingTime = RemainingDelta/thrustToMass;
+            }
+            else
+            {
                 EngineActivated = false;
                 RTUtil.ScreenMessage("[Flight Computer]: No engine to carry out the maneuver.");
-            } else {
-                RemainingTime = RemainingDelta / thrustToMass;
             }
 
             return true;
@@ -64,16 +63,17 @@ namespace RemoteTech
                 var orientation = Quaternion.LookRotation(forward, up);
                 FlightCore.HoldOrientation(fcs, f, orientation);
 
-                double thrustToMass = (FlightCore.GetTotalThrust(f.Vessel) / f.Vessel.GetTotalMass());
-                if (thrustToMass == 0.0) {
-                    EngineActivated = false;
+                var thrustToMass = (FlightCore.GetTotalThrust(f.Vessel) / f.Vessel.GetTotalMass());
+                if (thrustToMass > 0.0)
+                {
+                    EngineActivated = true;
+                    fcs.mainThrottle = 1.0f;
+                    RemainingTime = RemainingDelta/thrustToMass;
+                    RemainingDelta -= thrustToMass*TimeWarp.deltaTime;
                     return false;
                 }
 
-                EngineActivated = true;
-                fcs.mainThrottle = 1.0f;
-                RemainingTime = RemainingDelta / thrustToMass;
-                RemainingDelta -= thrustToMass * TimeWarp.deltaTime;
+                EngineActivated = false;
                 return false;
             }
             f.Enqueue(AttitudeCommand.Off(), true, true, true);
@@ -82,16 +82,16 @@ namespace RemoteTech
 
         public static ManeuverCommand WithNode(ManeuverNode node, FlightComputer f)
         {
-            double thrust = FlightCore.GetTotalThrust(f.Vessel);
-            double advance = f.Delay;
+            var thrust = FlightCore.GetTotalThrust(f.Vessel);
+            var advance = f.Delay;
 
             if (thrust > 0) {
                 advance += (node.DeltaV.magnitude / (thrust / f.Vessel.GetTotalMass())) / 2;
             }
 
-            var newNode = new ManeuverCommand()
-            {
-                Node = new ManeuverNode()
+            var newTimeStamp = node.UT - advance;
+
+            var newNode = new ManeuverNode
                 {
                     DeltaV = node.DeltaV,
                     patch = node.patch,
@@ -100,10 +100,9 @@ namespace RemoteTech
                     nextPatch = node.nextPatch,
                     UT = node.UT,
                     nodeRotation = node.nodeRotation,
-                },
-                TimeStamp = node.UT - advance,
-            };
-            return newNode;
+                };
+
+            return new ManeuverCommand(){Node = newNode, TimeStamp = newTimeStamp};
         }
     }
 }
