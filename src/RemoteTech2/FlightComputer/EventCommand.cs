@@ -13,8 +13,7 @@ namespace RemoteTech
         {
             get
             {
-                return BaseEvent.listParent.part.partInfo.title + ": " +
-                       BaseEvent.GUIName + Environment.NewLine + base.Description;
+                return string.Format("{0}: {1}{2}{3}", BaseEvent.listParent.part.partInfo.title, BaseEvent.GUIName, Environment.NewLine, base.Description);
             }
         }
          

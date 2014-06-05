@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace RemoteTech
@@ -39,7 +37,7 @@ namespace RemoteTech
 
     public class AttitudeCommand : AbstractCommand
     {
-        public static readonly Dictionary<FlightMode, String> FormatMode = new Dictionary<FlightMode, String>() 
+        public static readonly Dictionary<FlightMode, String> FormatMode = new Dictionary<FlightMode, String>
         {
             { FlightMode.Off,          "Mode: Off" },
             { FlightMode.KillRot,      "Mode: Kill rotation" },
@@ -48,7 +46,7 @@ namespace RemoteTech
             { FlightMode.Rover,        "" },
         };
 
-        public static readonly Dictionary<FlightAttitude, String> FormatAttitude = new Dictionary<FlightAttitude, String>() 
+        public static readonly Dictionary<FlightAttitude, String> FormatAttitude = new Dictionary<FlightAttitude, String>
         {
             { FlightAttitude.Prograde,    "Prograde" },
             { FlightAttitude.Retrograde,  "Retrograde" },
@@ -59,7 +57,7 @@ namespace RemoteTech
             { FlightAttitude.Surface,     "Direction" },
         };
 
-        public static readonly Dictionary<ReferenceFrame, String> FormatReference = new Dictionary<ReferenceFrame, String>() 
+        public static readonly Dictionary<ReferenceFrame, String> FormatReference = new Dictionary<ReferenceFrame, String>
         {
             { ReferenceFrame.Orbit,          "OBT" },
             { ReferenceFrame.Surface,        "SRF" },
@@ -71,17 +69,22 @@ namespace RemoteTech
         };
 
         public FlightMode Mode { get; set; }
+
         public FlightAttitude Attitude { get; set; }
+
         public ReferenceFrame Frame { get; set; }
+
         public Quaternion Orientation { get; set; }
+
         public float Altitude { get; set; }
+
         public override int Priority { get { return 0; } }
 
         public override string Description
         {
             get
             {
-                String res = "";
+                string res;
                 switch (Mode)
                 {
                     default: res = FormatMode[Mode]; break;
@@ -101,7 +104,7 @@ namespace RemoteTech
             }
         }
 
-        private bool mAbort;
+        private bool abort;
 
         public override bool Pop(FlightComputer f)
         {
@@ -114,22 +117,25 @@ namespace RemoteTech
 
         public override bool Execute(FlightComputer f, FlightCtrlState fcs)
         {
-            if (mAbort)
+            if (abort)
             {
                 Mode = FlightMode.Off;
-                mAbort = false;
+                abort = false;
             }
 
             switch (Mode)
             {
                 case FlightMode.Off:
                     break;
+
                 case FlightMode.KillRot:
                     FlightCore.HoldOrientation(fcs, f, Orientation * Quaternion.AngleAxis(90, Vector3.left));
                     break;
+
                 case FlightMode.AttitudeHold:
                     FlightCore.HoldAttitude(fcs, f, Frame, Attitude, Orientation);
                     break;
+
                 case FlightMode.AltitudeHold:
                     break;
             }
@@ -137,71 +143,74 @@ namespace RemoteTech
             return false;
         }
 
-        public override void Abort() { mAbort = true; }
+        public override void Abort()
+        {
+            abort = true;
+        }
 
         public static AttitudeCommand Off()
         {
-            return new AttitudeCommand()
-            {
-                Mode = FlightMode.Off,
-                Attitude = FlightAttitude.Prograde,
-                Frame = ReferenceFrame.World,
-                Orientation = Quaternion.identity,
-                Altitude = Single.NaN,
-                TimeStamp = RTUtil.GameTime,
-            };
+            return new AttitudeCommand
+                {
+                    Mode = FlightMode.Off,
+                    Attitude = FlightAttitude.Prograde,
+                    Frame = ReferenceFrame.World,
+                    Orientation = Quaternion.identity,
+                    Altitude = Single.NaN,
+                    TimeStamp = RTUtil.GameTime,
+                };
         }
 
         public static AttitudeCommand KillRot()
         {
-            return new AttitudeCommand()
-            {
-                Mode = FlightMode.KillRot,
-                Attitude = FlightAttitude.Prograde,
-                Frame = ReferenceFrame.World,
-                Orientation = Quaternion.identity,
-                Altitude = Single.NaN,
-                TimeStamp = RTUtil.GameTime,
-            };
+            return new AttitudeCommand
+                {
+                    Mode = FlightMode.KillRot,
+                    Attitude = FlightAttitude.Prograde,
+                    Frame = ReferenceFrame.World,
+                    Orientation = Quaternion.identity,
+                    Altitude = Single.NaN,
+                    TimeStamp = RTUtil.GameTime,
+                };
         }
 
         public static AttitudeCommand ManeuverNode()
         {
-            return new AttitudeCommand()
-            {
-                Mode = FlightMode.AttitudeHold,
-                Attitude = FlightAttitude.Prograde,
-                Frame = ReferenceFrame.Maneuver,
-                Orientation = Quaternion.identity,
-                Altitude = Single.NaN,
-                TimeStamp = RTUtil.GameTime,
-            };
+            return new AttitudeCommand
+                {
+                    Mode = FlightMode.AttitudeHold,
+                    Attitude = FlightAttitude.Prograde,
+                    Frame = ReferenceFrame.Maneuver,
+                    Orientation = Quaternion.identity,
+                    Altitude = Single.NaN,
+                    TimeStamp = RTUtil.GameTime,
+                };
         }
 
         public static AttitudeCommand WithAttitude(FlightAttitude att, ReferenceFrame frame)
         {
-            return new AttitudeCommand()
-            {
-                Mode = FlightMode.AttitudeHold,
-                Attitude = att,
-                Frame = frame,
-                Orientation = Quaternion.identity,
-                Altitude = Single.NaN,
-                TimeStamp = RTUtil.GameTime,
-            };
+            return new AttitudeCommand
+                {
+                    Mode = FlightMode.AttitudeHold,
+                    Attitude = att,
+                    Frame = frame,
+                    Orientation = Quaternion.identity,
+                    Altitude = Single.NaN,
+                    TimeStamp = RTUtil.GameTime,
+                };
         }
 
         public static AttitudeCommand WithAltitude(float height)
         {
-            return new AttitudeCommand()
-            {
-                Mode = FlightMode.AltitudeHold,
-                Attitude = FlightAttitude.Prograde,
-                Frame = ReferenceFrame.North,
-                Orientation = Quaternion.identity,
-                Altitude = height,
-                TimeStamp = RTUtil.GameTime,
-            };
+            return new AttitudeCommand
+                {
+                    Mode = FlightMode.AltitudeHold,
+                    Attitude = FlightAttitude.Prograde,
+                    Frame = ReferenceFrame.North,
+                    Orientation = Quaternion.identity,
+                    Altitude = height,
+                    TimeStamp = RTUtil.GameTime,
+                };
         }
 
         public static AttitudeCommand WithSurface(double pitch, double yaw, double roll)
@@ -209,15 +218,15 @@ namespace RemoteTech
             Quaternion rotation = Quaternion.Euler(new Vector3d(Double.IsNaN(pitch) ? 0 : pitch,
                                                                 Double.IsNaN(yaw) ? 0 : -yaw,
                                                                 Double.IsNaN(roll) ? 0 : 180 - roll));
-            return new AttitudeCommand()
-            {
-                Mode = FlightMode.AttitudeHold,
-                Attitude = FlightAttitude.Surface,
-                Frame = ReferenceFrame.North,
-                Orientation = rotation,
-                Altitude = Single.NaN,
-                TimeStamp = RTUtil.GameTime,
-            };
+            return new AttitudeCommand
+                {
+                    Mode = FlightMode.AttitudeHold,
+                    Attitude = FlightAttitude.Surface,
+                    Frame = ReferenceFrame.North,
+                    Orientation = rotation,
+                    Altitude = Single.NaN,
+                    TimeStamp = RTUtil.GameTime,
+                };
         }
     }
 }

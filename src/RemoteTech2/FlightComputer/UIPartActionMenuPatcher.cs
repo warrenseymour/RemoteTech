@@ -32,10 +32,10 @@ namespace RemoteTech
                         var partEvent = (BaseEventDelegate)partEventFieldInfo.GetValue(button.Evt);
                         if (!partEvent.Method.GetCustomAttributes(typeof(KSPEvent), true).Any(a => ((KSPEvent)a).category.Contains("skip_control")))
                         {
-                            bool ignore_delay = partEvent.Method.GetCustomAttributes(typeof(KSPEvent), true).Any(a => ((KSPEvent)a).category.Contains("skip_delay"));
+                            bool ignoreDelay = partEvent.Method.GetCustomAttributes(typeof(KSPEvent), true).Any(a => ((KSPEvent)a).category.Contains("skip_delay"));
                             var eventField = typeof(UIPartActionEventItem).GetFields(BindingFlags.Instance | BindingFlags.NonPublic)
                                 .First(fi => fi.FieldType == typeof(BaseEvent));
-                            eventField.SetValue(button, Wrapper.CreateWrapper(button.Evt, pass, ignore_delay));
+                            eventField.SetValue(button, Wrapper.CreateWrapper(button.Evt, pass, ignoreDelay));
                         }
                     }
                 }
@@ -44,32 +44,32 @@ namespace RemoteTech
 
         private class Wrapper
         {
-            private Action<BaseEvent, bool> mPassthrough;
-            private BaseEvent mEvent;
-            private bool mIgnoreDelay;
+            private readonly Action<BaseEvent, bool> passthrough;
+            private readonly BaseEvent baseEvent;
+            private readonly bool ignoreDelay;
 
-            private Wrapper(BaseEvent original, Action<BaseEvent, bool> passthrough, bool ignore_delay)
+            private Wrapper(BaseEvent original, Action<BaseEvent, bool> passthrough, bool ignoreDelay)
             {
-                mPassthrough = passthrough;
-                mEvent = original;
-                mIgnoreDelay = ignore_delay;
+                this.passthrough = passthrough;
+                baseEvent = original;
+                this.ignoreDelay = ignoreDelay;
             }
 
-            public static BaseEvent CreateWrapper(BaseEvent original, Action<BaseEvent, bool> passthrough, bool ignore_delay)
+            public static BaseEvent CreateWrapper(BaseEvent original, Action<BaseEvent, bool> passthrough, bool ignoreDelay)
             {
-                ConfigNode cn = new ConfigNode();
+                var cn = new ConfigNode();
                 original.OnSave(cn);
-                Wrapper wrapper = new Wrapper(original, passthrough, ignore_delay);
-                BaseEvent new_event = new BaseEvent(original.listParent, original.name, wrapper.Invoke);
-                new_event.OnLoad(cn);
+                var wrapper = new Wrapper(original, passthrough, ignoreDelay);
+                var newEvent = new BaseEvent(original.listParent, original.name, wrapper.Invoke);
+                newEvent.OnLoad(cn);
 
-                return new_event;
+                return newEvent;
             }
 
             [KSPEvent(category="skip_control")]
             public void Invoke()
             {
-                mPassthrough.Invoke(mEvent, mIgnoreDelay);
+                passthrough.Invoke(baseEvent, ignoreDelay);
             }
         }
     }

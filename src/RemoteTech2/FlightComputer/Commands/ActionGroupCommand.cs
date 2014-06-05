@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace RemoteTech
 {
@@ -11,7 +8,7 @@ namespace RemoteTech
 
         public override string Description
         {
-            get { return "Toggle " + ActionGroup + Environment.NewLine + base.Description; }
+            get { return string.Format("Toggle {0}{1}{2}", ActionGroup, Environment.NewLine, base.Description); }
         }
 
         public override bool Pop(FlightComputer f)
@@ -32,8 +29,8 @@ namespace RemoteTech
 
         public static ActionGroupCommand WithGroup(KSPActionGroup group)
         {
-            return new ActionGroupCommand()
-            {
+            return new ActionGroupCommand
+                {
                 ActionGroup = group,
                 TimeStamp = RTUtil.GameTime,
             };

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace RemoteTech
@@ -13,7 +11,6 @@ namespace RemoteTech
             var v = f.Vessel;
             var forward = Vector3.zero;
             var up = Vector3.zero;
-            var rotationReference = Quaternion.identity;
             switch (frame)
             {
                 case ReferenceFrame.Orbit:
@@ -31,7 +28,6 @@ namespace RemoteTech
                      );
                     break;
                 case ReferenceFrame.Maneuver:
-                    up = v.transform.up;
                     if (f.DelayedManeuver != null)
                     {
                         forward = f.DelayedManeuver.GetBurnVector(v.orbit);
@@ -44,7 +40,7 @@ namespace RemoteTech
                     }
                     break;
                 case ReferenceFrame.TargetVelocity:
-                    if (f.DelayedTarget != null && f.DelayedTarget is Vessel)
+                    if (f.DelayedTarget is Vessel)
                     {
                         forward = v.GetObtVelocity() - f.DelayedTarget.GetObtVelocity();
                         up = (v.mainBody.position - v.CoM);
@@ -56,7 +52,7 @@ namespace RemoteTech
                     }
                     break;
                 case ReferenceFrame.TargetParallel:
-                    if (f.DelayedTarget != null && f.DelayedTarget is Vessel)
+                    if (f.DelayedTarget is Vessel)
                     {
                         forward = f.DelayedTarget.GetTransform().position - v.CoM;
                         up = (v.mainBody.position - v.CoM);
@@ -69,7 +65,7 @@ namespace RemoteTech
                     break;
             }
             Vector3.OrthoNormalize(ref forward, ref up);
-            rotationReference = Quaternion.LookRotation(forward, up);
+            var rotationReference = Quaternion.LookRotation(forward, up);
             switch (attitude)
             {
                 case FlightAttitude.Prograde:

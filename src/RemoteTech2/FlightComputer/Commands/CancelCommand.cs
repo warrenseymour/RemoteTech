@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace RemoteTech
 {
     public class CancelCommand : AbstractCommand
     {
-        public override double ExtraDelay { get { return base.ExtraDelay; } set { return; } }
+        public override double ExtraDelay { get { return base.ExtraDelay; } set {} }
         public ICommand Command { get; set; }
 
         public override string Description { get { return "Cancelling a command." + Environment.NewLine + base.Description; } }
@@ -27,8 +24,8 @@ namespace RemoteTech
 
         public static CancelCommand WithCommand(ICommand cmd)
         {
-            return new CancelCommand()
-            {
+            return new CancelCommand
+                {
                 Command = cmd,
                 TimeStamp = RTUtil.GameTime,
             };
@@ -36,8 +33,8 @@ namespace RemoteTech
 
         public static CancelCommand ResetActive()
         {
-            return new CancelCommand()
-            {
+            return new CancelCommand
+                {
                 Command = null,
                 TimeStamp = RTUtil.GameTime,
             };
